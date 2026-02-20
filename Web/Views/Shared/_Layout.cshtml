@@ -1,0 +1,262 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] – IZUMU</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/css/datepicker.min.css" />
+
+    <style>
+        :root {
+            --izumu-primary:    #1a3a5c;
+            --izumu-secondary:  #2d6a9f;
+            --izumu-accent:     #e8f0fe;
+            --izumu-danger:     #c0392b;
+            --izumu-success:    #1e8449;
+            --izumu-light:      #f4f6f9;
+            --izumu-border:     #d1d9e0;
+        }
+
+        body {
+            background-color: var(--izumu-light);
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.92rem;
+            color: #2c3e50;
+        }
+
+        /* ── Navbar ── */
+        .navbar-izumu {
+            background-color: var(--izumu-primary);
+            padding: 0.6rem 1.5rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+        .navbar-izumu .navbar-brand {
+            color: #ffffff;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .navbar-izumu .navbar-brand span {
+            color: #90caf9;
+        }
+        .navbar-izumu .nav-link {
+            color: rgba(255,255,255,0.80) !important;
+            font-size: 0.88rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .navbar-izumu .nav-link:hover,
+        .navbar-izumu .nav-link.active {
+            background-color: var(--izumu-secondary);
+            color: #fff !important;
+        }
+        .navbar-izumu .navbar-text {
+            color: rgba(255,255,255,0.65);
+            font-size: 0.82rem;
+        }
+
+        /* ── Page header ── */
+        .page-header {
+            background: #ffffff;
+            border-bottom: 3px solid var(--izumu-primary);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .page-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--izumu-primary);
+            margin: 0;
+        }
+        .page-header small {
+            color: #6c757d;
+            font-size: 0.82rem;
+        }
+
+        /* ── Cards ── */
+        .card {
+            border: 1px solid var(--izumu-border);
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .card-header {
+            font-size: 0.9rem;
+            padding: 0.65rem 1rem;
+            border-radius: 8px 8px 0 0 !important;
+        }
+
+        /* ── Tabla ── */
+        .table thead th {
+            background-color: var(--izumu-primary);
+            color: #ffffff;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            border: none;
+            padding: 0.75rem 1rem;
+            white-space: nowrap;
+        }
+        .table tbody tr {
+            transition: background 0.15s;
+        }
+        .table tbody tr:hover {
+            background-color: var(--izumu-accent);
+        }
+        .table tbody td {
+            padding: 0.65rem 1rem;
+            vertical-align: middle;
+            border-color: var(--izumu-border);
+            font-size: 0.88rem;
+        }
+        .table-footer {
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            font-size: 0.82rem;
+            color: #6c757d;
+            border-top: 1px solid var(--izumu-border);
+            border-radius: 0 0 8px 8px;
+        }
+
+        /* ── Badges ── */
+        .badge-telefono {
+            background-color: #1a3a5c;
+            color: #fff;
+            font-size: 0.78rem;
+            padding: 0.35em 0.65em;
+            border-radius: 4px;
+        }
+        .badge-email {
+            background-color: #155a8a;
+            color: #fff;
+            font-size: 0.78rem;
+            padding: 0.35em 0.65em;
+            border-radius: 4px;
+        }
+        .text-direccion {
+            font-size: 0.82rem;
+            color: #495057;
+        }
+        .sin-dato {
+            color: #adb5bd;
+            font-size: 0.82rem;
+            font-style: italic;
+        }
+
+        /* ── Botones de acción ── */
+        .btn-editar {
+            background-color: #fff;
+            border: 1px solid var(--izumu-secondary);
+            color: var(--izumu-secondary);
+            font-size: 0.80rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .btn-editar:hover {
+            background-color: var(--izumu-secondary);
+            color: #fff;
+        }
+        .btn-eliminar {
+            background-color: #fff;
+            border: 1px solid var(--izumu-danger);
+            color: var(--izumu-danger);
+            font-size: 0.80rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .btn-eliminar:hover {
+            background-color: var(--izumu-danger);
+            color: #fff;
+        }
+
+        /* ── Formulario ── */
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 0.25rem;
+        }
+        .form-control, .form-select {
+            font-size: 0.88rem;
+            border-color: var(--izumu-border);
+            border-radius: 5px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--izumu-secondary);
+            box-shadow: 0 0 0 3px rgba(45,106,159,0.15);
+        }
+
+        /* ── Footer ── */
+        footer {
+            background-color: var(--izumu-primary);
+            color: rgba(255,255,255,0.6);
+            font-size: 0.80rem;
+            padding: 0.75rem 1.5rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── Navbar ── -->
+    <nav class="navbar navbar-expand-lg navbar-izumu">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-check me-2"></i>IZUMU
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarMain">
+                <i class="bi bi-list text-white fs-4"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Client" ? "active" : "")"
+                           asp-controller="Client" asp-action="Index">
+                            <i class="bi bi-people me-1"></i>Clientes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-bar-chart me-1"></i>Reportes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-gear me-1"></i>Configuración
+                        </a>
+                    </li>
+                </ul>
+                <span class="navbar-text">
+                    <i class="bi bi-circle-fill text-success me-1" style="font-size:0.55rem"></i>
+                    Sistema en línea
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ── Contenido ── -->
+    <main>
+        @RenderBody()
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer>
+        © @DateTime.Now.Year IZUMU · Todos los derechos reservados
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/js/datepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/js/i18n/locales/es.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

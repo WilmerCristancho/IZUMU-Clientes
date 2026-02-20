@@ -1,0 +1,214 @@
+﻿@model List<IzumuClientes.Web.Models.ClientViewModel>
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<div class="container-fluid px-4 py-3">
+
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h2><i class="bi bi-people-fill me-2"></i>Gestión de Clientes</h2>
+            <small>Consulte, registre y administre la información de los clientes</small>
+        </div>
+        <a asp-action="Form" class="btn btn-sm px-3 py-2"
+           style="background-color:#1a3a5c;color:#fff;border-radius:5px;font-size:0.85rem;">
+            <i class="bi bi-plus-circle me-1"></i> Nuevo Cliente
+        </a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show py-2" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body p-0">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    No hay clientes registrados aún.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Identificación</th>
+                                <th>Nombre Completo</th>
+                                <th>Fecha Nac.</th>
+                                <th>Teléfono(s)</th>
+                                <th>Email(s)</th>
+                                <th>Dirección(es)</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Model)
+                            {
+                                <tr>
+                                    <td class="fw-semibold text-muted">@c.IDCliente</td>
+                                    <td>@c.Identificacion</td>
+                                    <td class="fw-semibold">@c.NombreCliente</td>
+                                    <td>@c.FechaNacimiento</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(c.Telefonos))
+                                        {
+                                            <span class="text-direccion">
+                                                <i class="bi bi-telephone-fill me-1 text-muted"></i>
+                                                @c.Telefonos.Replace(" (M)", "")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="sin-dato">Sin teléfono</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(c.Emails))
+                                        {
+                                            <span class="text-direccion">
+                                                <i class="bi bi-envelope-fill me-1 text-muted"></i>
+                                                @c.Emails
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="sin-dato">Sin email</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(c.Direcciones))
+                                        {
+                                            <span class="text-direccion">
+                                                <i class="bi bi-geo-alt-fill me-1 text-muted"></i>
+                                                @c.Direcciones
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="sin-dato">Sin dirección</span>
+                                        }
+                                    </td>
+                                    <td class="text-center" style="white-space:nowrap">
+                                        <a asp-action="Form" asp-route-id="@c.IDCliente"
+                                           class="btn-editar me-1">
+                                            <i class="bi bi-pencil-fill me-1"></i>Editar
+                                        </a>
+                                        <button type="button" class="btn-eliminar"
+                                                onclick="confirmarEliminar(@c.IDCliente, '@c.NombreCliente')">
+                                            <i class="bi bi-trash-fill me-1"></i>Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+        <div class="table-footer">
+            <i class="bi bi-info-circle me-1"></i>
+            Total: <strong>@Model.Count</strong> cliente(s) registrado(s)
+        </div>
+    </div>
+</div>
+
+<form id="formEliminar" asp-action="Eliminar" method="post" class="d-none">
+    <input type="hidden" id="inputIdEliminar" name="id" />
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:8px;border:none;">
+            <div class="modal-header border-0 pb-0">
+                <div class="w-100 text-center pt-2">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
+                         style="width:56px;height:56px;background-color:#fdecea;">
+                        <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
+                    </div>
+                    <h5 class="modal-title fw-bold text-danger">Eliminar Cliente</h5>
+                </div>
+            </div>
+            <div class="modal-body text-center py-2">
+                <p class="mb-1" style="font-size:0.92rem;">
+                    ¿Está seguro que desea eliminar al cliente
+                </p>
+                <p class="fw-bold mb-0" id="modalNombreCliente"
+                   style="color:#1a3a5c;"></p>
+                <p class="text-muted mt-1" style="font-size:0.82rem;">
+                    Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pb-3 gap-2">
+                <button type="button" class="btn btn-outline-secondary px-4"
+                        data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn px-4 text-white"
+                        id="btnConfirmarEliminar"
+                        style="background-color:#c0392b;">
+                    <i class="bi bi-trash-fill me-1"></i>Sí, eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalExito" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:8px;border:none;">
+            <div class="modal-header border-0 pb-0">
+                <div class="w-100 text-center pt-2">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
+                         style="width:56px;height:56px;background-color:#eafaf1;">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                    </div>
+                    <h5 class="modal-title fw-bold" style="color:#1e8449;">Operación Exitosa</h5>
+                </div>
+            </div>
+            <div class="modal-body text-center py-2">
+                <p class="mb-0" id="modalExitoMensaje"
+                   style="font-size:0.92rem;color:#2c3e50;"></p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pb-3">
+                <button type="button" class="btn px-4 text-white"
+                        data-bs-dismiss="modal"
+                        style="background-color:#1a3a5c;">
+                    <i class="bi bi-check me-1"></i>Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmarEliminar(id, nombre) {
+            document.getElementById('inputIdEliminar').value = id;
+            document.getElementById('modalNombreCliente').textContent = nombre + '?';
+            new bootstrap.Modal(document.getElementById('modalEliminar')).show();
+        }
+
+        document.getElementById('btnConfirmarEliminar').addEventListener('click', function () {
+            document.getElementById('formEliminar').submit();
+        });
+
+        @if (TempData["Success"] != null)
+        {
+                <text>
+                document.addEventListener('DOMContentLoaded', function () {
+                    document.getElementById('modalExitoMensaje').textContent = '@TempData["Success"]';
+                    new bootstrap.Modal(document.getElementById('modalExito')).show();
+                });
+                </text>
+        }
+    </script>
+}

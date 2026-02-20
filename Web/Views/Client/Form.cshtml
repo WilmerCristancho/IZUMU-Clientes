@@ -1,0 +1,300 @@
+﻿@model IzumuClientes.Web.Models.ClienteFormViewModel
+@{
+    ViewData["Title"] = Model.IDCliente == 0 ? "Nuevo Cliente" : "Editar Cliente";
+    bool esEdicion = Model.IDCliente != 0;
+}
+
+<div class="container-fluid px-4 py-3">
+
+    <div class="page-header d-flex align-items-center">
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary me-3">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <h2>
+                <i class="bi bi-person-@(esEdicion ? "gear" : "plus-fill") me-2"></i>
+                @(esEdicion ? "Editar Cliente" : "Nuevo Cliente")
+            </h2>
+            <small>Complete los datos del formulario. Los campos con <span class="text-danger">*</span> son obligatorios</small>
+        </div>
+    </div>
+
+    <form asp-action="Guardar" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="IDCliente" />
+
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+
+        <div class="card mb-3">
+            <div class="card-header text-white d-flex align-items-center"
+                 style="background-color:#1a3a5c;">
+                <i class="bi bi-person-vcard me-2"></i> Datos Personales
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label asp-for="TipoIdentificacion" class="form-label">
+                            Tipo de Identificación <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="TipoIdentificacion" class="form-select">
+                            <option value="0">-- Seleccione --</option>
+                            @foreach (var tipo in Model.TiposDocumento)
+                            {
+                                <option value="@tipo.IDTipoDocumento">@tipo.TipoDocumentoNombre</option>
+                            }
+                        </select>
+                        <span asp-validation-for="TipoIdentificacion" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Identificacion" class="form-label">
+                            Número de Identificación <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="Identificacion" class="form-control" placeholder="Ej: 1234567890" />
+                        <span asp-validation-for="Identificacion" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="FechaNacimiento" class="form-label">
+                            Fecha de Nacimiento <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="FechaNacimiento"
+                               class="form-control"
+                               id="fechaNacimiento"
+                               placeholder="dd-MM-yyyy"
+                               autocomplete="off" />
+                        <span asp-validation-for="FechaNacimiento" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="PrimerNombre" class="form-label">
+                            Primer Nombre <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="PrimerNombre" class="form-control" placeholder="Primer nombre" />
+                        <span asp-validation-for="PrimerNombre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="SegundoNombre" class="form-label">Segundo Nombre</label>
+                        <input asp-for="SegundoNombre" class="form-control" placeholder="Segundo nombre" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="PrimerApellido" class="form-label">
+                            Primer Apellido <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="PrimerApellido" class="form-control" placeholder="Primer apellido" />
+                        <span asp-validation-for="PrimerApellido" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="SegundoApellido" class="form-label">Segundo Apellido</label>
+                        <input asp-for="SegundoApellido" class="form-control" placeholder="Segundo apellido" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="IDPlan" class="form-label">
+                            Plan de Medicina Prepagada <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="IDPlan" class="form-select">
+                            <option value="0">-- Seleccione un plan --</option>
+                            @foreach (var grupo in Model.Planes.GroupBy(p => p.Categoria))
+                            {
+                                <optgroup label="@grupo.Key">
+                                    @foreach (var plan in grupo)
+                                    {
+                                        <option value="@plan.IDPlan">@plan.PlanNombre</option>
+                                    }
+                                </optgroup>
+                            }
+                        </select>
+                        <span asp-validation-for="IDPlan" class="text-danger small"></span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header text-white d-flex justify-content-between align-items-center"
+                 style="background-color:#2d6a9f;">
+                <span><i class="bi bi-telephone-fill me-2"></i>Teléfonos</span>
+                <button type="button" class="btn btn-sm btn-light" onclick="agregarTelefono()">
+                    <i class="bi bi-plus-circle me-1"></i>Agregar
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="telefonos-container">
+                    <p class="text-muted small text-center mb-0" id="telefono-placeholder">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Haga clic en "Agregar" para añadir un teléfono
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header text-white d-flex justify-content-between align-items-center"
+                 style="background-color:#2d6a9f;">
+                <span><i class="bi bi-envelope-fill me-2"></i>Correos Electrónicos</span>
+                <button type="button" class="btn btn-sm btn-light" onclick="agregarEmail()">
+                    <i class="bi bi-plus-circle me-1"></i>Agregar
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="emails-container">
+                    <p class="text-muted small text-center mb-0" id="email-placeholder">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Haga clic en "Agregar" para añadir un correo
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header text-white d-flex justify-content-between align-items-center"
+                 style="background-color:#2d6a9f;">
+                <span><i class="bi bi-geo-alt-fill me-2"></i>Direcciones</span>
+                <button type="button" class="btn btn-sm btn-light" onclick="agregarDireccion()">
+                    <i class="bi bi-plus-circle me-1"></i>Agregar
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="direcciones-container">
+                    <p class="text-muted small text-center mb-0" id="direccion-placeholder">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Haga clic en "Agregar" para añadir una dirección
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mb-4">
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-x-circle me-1"></i>Cancelar
+            </a>
+            <button type="submit" class="btn px-4 text-white" id="btnGuardar"
+                    style="background-color:#1a3a5c;">
+                <span id="btnTexto">
+                    <i class="bi bi-save me-1"></i>@(esEdicion ? "Actualizar" : "Guardar")
+                </span>
+                <span id="btnSpinner" class="d-none">
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                    @(esEdicion ? "Actualizando..." : "Guardando...")
+                </span>
+            </button>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        const datepicker = new Datepicker(document.getElementById('fechaNacimiento'), {
+            format: 'dd-mm-yyyy',
+            language: 'es',
+            autohide: true,
+            maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 18))
+        });
+
+        let telefonoIndex = 0;
+        let emailIndex = 0;
+        let direccionIndex = 0;
+
+        function agregarTelefono() {
+            document.getElementById('telefono-placeholder').style.display = 'none';
+            const container = document.getElementById('telefonos-container');
+            const div = document.createElement('div');
+            div.className = 'row g-2 align-items-center mb-2';
+            div.id = `telefono-${telefonoIndex}`;
+            div.innerHTML = `
+                <div class="col-md-6">
+                    <input type="text" name="Telefonos[${telefonoIndex}].Telefono"
+                           class="form-control"
+                           placeholder="Número de teléfono (10 dígitos)"
+                           maxlength="10"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check ms-1">
+                        <input type="checkbox" name="Telefonos[${telefonoIndex}].Movil"
+                               class="form-check-input" id="movil-${telefonoIndex}" value="true" />
+                        <label class="form-check-label" for="movil-${telefonoIndex}">Móvil</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                            onclick="eliminarItem('telefono-${telefonoIndex}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>`;
+            container.appendChild(div);
+            telefonoIndex++;
+        }
+
+        function agregarEmail() {
+            document.getElementById('email-placeholder').style.display = 'none';
+            const container = document.getElementById('emails-container');
+            const div = document.createElement('div');
+            div.className = 'row g-2 align-items-center mb-2';
+            div.id = `email-${emailIndex}`;
+            div.innerHTML = `
+                <div class="col-md-10">
+                    <input type="email" name="Emails[${emailIndex}].Email"
+                           class="form-control" placeholder="correo@ejemplo.com" />
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                            onclick="eliminarItem('email-${emailIndex}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>`;
+            container.appendChild(div);
+            emailIndex++;
+        }
+
+        function agregarDireccion() {
+            document.getElementById('direccion-placeholder').style.display = 'none';
+            const container = document.getElementById('direcciones-container');
+            const div = document.createElement('div');
+            div.className = 'row g-2 align-items-center mb-2';
+            div.id = `direccion-${direccionIndex}`;
+            div.innerHTML = `
+                <div class="col-md-10">
+                    <input type="text" name="Direcciones[${direccionIndex}].Direccion"
+                           class="form-control" placeholder="Dirección completa" />
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                            onclick="eliminarItem('direccion-${direccionIndex}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>`;
+            container.appendChild(div);
+            direccionIndex++;
+        }
+
+        function eliminarItem(id) {
+            document.getElementById(id).remove();
+        }
+
+        document.querySelector('form').addEventListener('submit', function (e) {
+            e.preventDefault(); 
+
+            const form      = this;
+            const btnGuardar = document.getElementById('btnGuardar');
+            const btnTexto   = document.getElementById('btnTexto');
+            const btnSpinner = document.getElementById('btnSpinner');
+
+            btnTexto.classList.add('d-none');
+            btnSpinner.classList.remove('d-none');
+            btnGuardar.disabled = true;
+
+            setTimeout(function () {
+                form.submit();
+            }, 1200);
+        });
+
+    </script>
+}

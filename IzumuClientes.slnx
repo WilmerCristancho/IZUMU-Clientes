@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Database/">
+    <File Path="../../../Documents/ScriptDB_IZUMU.sql" />
+  </Folder>
+  <Folder Name="/Elementos de la solución/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="API/IzumuClientes.API.csproj" />
+  <Project Path="Application/IzumuClientes.Application.csproj" />
+  <Project Path="Domain/IzumuClientes.Domain.csproj" />
+  <Project Path="Infraestructure/IzumuClientes.Infraestructure.csproj" />
+  <Project Path="Tests/Tests.csproj" />
+  <Project Path="Web/Web.csproj" />
+</Solution>
